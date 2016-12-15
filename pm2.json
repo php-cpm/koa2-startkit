@@ -2,13 +2,17 @@
   "apps": [{
     "name": "koa2-startkit",
     "script": "bin/production.js",
-    // "cwd": "/absolute/path/to/project",
     "exec_mode": "cluster",
-    "instances": 0,
+    "instances": "max",
     "max_memory_restart": "1G",
     "autorestart": true,
     "node_args": [],
     "args": [],
+    "error_file": "/var/log/nodejs/pm2-err.log",
+    "out_file": "/var/log/nodejs/pm2-out.log",
+    "env_development": {
+      "NODE_ENV": "development"
+    },
     "env": {
       "NODE_ENV": "production"
     }
