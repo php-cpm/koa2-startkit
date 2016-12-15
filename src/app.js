@@ -9,6 +9,7 @@ import logger from 'koa-logger'
 import koaStatic from 'koa-static-plus'
 import koaOnError from 'koa-onerror'
 import config from './config'
+import mongoose from 'mongoose'
 
 const app = new Koa()
 const bodyparser = Bodyparser()
@@ -23,22 +24,13 @@ app.use(convert(koaStatic(path.join(__dirname, '../public'), {
   pathPrefix: ''
 })))
 
-// views
-app.use(views(path.join(__dirname, '../views'), {
-  extension: 'ejs'
-}))
-
-// 500 error
-koaOnError(app, {
-  template: 'views/500.ejs'
-})
-
 // logger
 app.use(async (ctx, next) => {
   const start = new Date()
   await next()
   const ms = new Date() - start
   console.log(`${ctx.method} ${ctx.url} - ${ms}ms`)
+  console.log(`input: ${JSON.stringify(ctx.query)} output: ${JSON.stringify(ctx.body)}`)
 })
 
 // response router
@@ -46,16 +38,13 @@ app.use(async (ctx, next) => {
   await require('./routes').routes()(ctx, next)
 })
 
-// 404
-app.use(async (ctx) => {
-  ctx.status = 404
-  await ctx.render('404')
-})
-
 // error logger
 app.on('error', async (err, ctx) => {
   console.log('error occured:', err)
 })
+
+mongoose.Promise = Promise
+mongoose.connect(config.db)
 
 const port = parseInt(config.port || '3000')
 const server = http.createServer(app.callback())
